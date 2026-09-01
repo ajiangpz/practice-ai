@@ -1,0 +1,78 @@
+project:
+  name: practice-ai
+  product_name: "练一下 · 手机摄影"
+  current_phase: 1
+  current_phase_name: mock-killer-loop
+
+phase_lock:
+  enabled: true
+  rule: "Do not implement a later phase unless the user explicitly advances the project."
+
+stack:
+  mini_program: "Taro 4"
+  ui: "React + TypeScript + Sass"
+  backend: "locked until phase 2"
+  ai: "locked until phase 3"
+  agent: "locked until phase 6"
+
+active_scope:
+  skill_id: BG-01
+  skill_key: background_control
+  routes:
+    - pages/practice/index
+    - pages/capture/index
+    - pages/coach/index
+  flow:
+    - practice
+    - capture_attempt_1
+    - mock_retry
+    - capture_attempt_2
+    - before_after_compare
+    - complete
+
+forbidden_in_phase_1:
+  - backend
+  - real_ai
+  - database
+  - langgraph
+  - rag
+  - multi_agent
+  - websocket
+  - redis
+  - bullmq
+  - home_page
+  - growth_page
+  - extra_photography_skills
+  - ai_chat_ui
+
+required_types:
+  - Practice
+  - Submission
+  - CoachState
+  - CoachResult
+
+persistence:
+  provider: taro_storage
+  required_keys:
+    - practice_state
+    - before_image_path
+    - after_image_path
+    - attempt
+
+quality_gates:
+  automated:
+    - required_files_exist
+    - typecheck_passes
+    - weapp_build_passes
+    - dist_exists
+  manual:
+    - flow_completes_end_to_end
+    - first_attempt_shows_one_retry_issue
+    - retry_action_is_specific
+    - second_attempt_uses_real_before_after_images
+    - no_chat_ui
+    - navigation_does_not_immediately_lose_core_state
+
+completion_policy:
+  command: "bash scripts/verify-phase1.sh"
+  auto_advance: false
