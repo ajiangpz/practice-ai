@@ -3,7 +3,7 @@ import Taro, { useDidShow, useLoad } from '@tarojs/taro'
 import { useRef, useState } from 'react'
 
 import { getAttempt, getImage, getPractice, saveAttempt, saveImage, savePractice } from '@/services/storage'
-import type { Attempt, Submission } from '@/types/domain'
+import type { Attempt } from '@/types/domain'
 
 import './index.scss'
 
@@ -62,14 +62,7 @@ export default function CapturePage() {
     }
 
     const practice = getPractice()
-    const submission: Submission = {
-      id: `${practice.id}-attempt-${attempt}`,
-      practiceId: practice.id,
-      attempt,
-      imageUrl: imagePath
-    }
-
-    saveImage(attempt, submission.imageUrl)
+    saveImage(attempt, imagePath)
     savePractice({
       ...practice,
       attemptCount: attempt,

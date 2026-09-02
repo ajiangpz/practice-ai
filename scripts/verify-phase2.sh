@@ -21,7 +21,11 @@ info "verifying required Phase 2 structure"
 [[ -f "$FRONTEND/src/services/api.ts" ]] || fail "frontend/src/services/api.ts missing"
 [[ -f "$FRONTEND/src/pages/coach/index.tsx" ]] || fail "Coach page missing"
 
-if command -v python3 >/dev/null 2>&1; then
+if [[ -x "$BACKEND/.venv/Scripts/python.exe" ]]; then
+  PYTHON="$BACKEND/.venv/Scripts/python.exe"
+elif [[ -x "$BACKEND/.venv/bin/python" ]]; then
+  PYTHON="$BACKEND/.venv/bin/python"
+elif command -v python3 >/dev/null 2>&1; then
   PYTHON=python3
 elif command -v python >/dev/null 2>&1; then
   PYTHON=python
@@ -73,6 +77,11 @@ info "running frontend typecheck"
 info "building WeChat Mini Program"
 "$PM" run build:weapp
 [[ -d "$FRONTEND/dist" ]] || fail "frontend/dist not generated"
+
+if grep -RIl --exclude='*.map' -F 'process.env.TARO_APP_API_BASE_URL' "$FRONTEND/dist" >/tmp/practice_ai_phase2_runtime_env_hits 2>/dev/null; then
+  cat /tmp/practice_ai_phase2_runtime_env_hits
+  fail "WeChat bundle still references Node process.env at runtime"
+fi
 
 info "automated Phase 2 checks passed"
 echo "[phase2] Manual acceptance still required with FastAPI running: Practice → Capture → API Retry → Capture → API Compare → Complete, plus recoverable network failure."

@@ -2,3 +2,4 @@ node_modules/
 dist/
 .cache/
 .swc/
+project.private.config.json

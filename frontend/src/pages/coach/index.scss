@@ -3,6 +3,47 @@
   flex-direction: column;
 }
 
+.status-page {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.status-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: #e5f1e9;
+  color: #246b49;
+  font-size: 42px;
+  font-weight: 750;
+}
+
+.error-mark {
+  background: #f9e8e4;
+  color: #9a4034;
+}
+
+.status-title {
+  margin-top: 28px;
+  font-size: 38px;
+  font-weight: 720;
+}
+
+.status-hint {
+  margin-top: 14px;
+  color: #6a736c;
+  font-size: 27px;
+  line-height: 1.6;
+}
+
+.status-page .primary-button {
+  margin-top: 48px;
+}
+
 .feedback-card {
   display: flex;
   align-items: center;
@@ -135,6 +176,16 @@
   color: #3e4640;
   font-size: 28px;
   line-height: 1.6;
+}
+
+.inline-error {
+  margin-top: 24px;
+  padding: 18px 22px;
+  border-radius: 18px;
+  background: #f9e8e4;
+  color: #9a4034;
+  font-size: 24px;
+  text-align: center;
 }
 
 .completion-state {

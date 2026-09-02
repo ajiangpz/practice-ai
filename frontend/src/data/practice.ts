@@ -1,4 +1,4 @@
-import type { CoachResult, Practice } from '@/types/domain'
+import type { Practice } from '@/types/domain'
 
 export const initialPractice: Practice = {
   id: 'practice-bg-01',
@@ -10,17 +10,4 @@ export const initialPractice: Practice = {
   maxAttempts: 3,
   attemptCount: 0,
   status: 'ready'
-}
-
-export const retryResult: CoachResult = {
-  state: 'retry',
-  positiveObservation: '主体已经比较明确',
-  primaryIssue: {
-    type: 'background_distraction',
-    description: '右后方的干扰物比较抢眼'
-  },
-  action: {
-    type: 'move_left',
-    instruction: '不要移动主体，向左移动一步，再拍一次。'
-  }
 }

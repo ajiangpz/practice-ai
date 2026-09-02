@@ -1,8 +1,8 @@
 # Architecture
 
-## Current architecture — Phase 1
+## Current architecture — Phase 2
 
-Phase 1 is intentionally frontend-only.
+Phase 2 adds only the HTTP contract needed to move deterministic coaching decisions out of the UI.
 
 ```text
 Taro Mini Program
@@ -12,11 +12,19 @@ Taro Mini Program
 ├── Coach page
 │
 ├── Domain types
-├── Mock practice data
-└── Taro Storage
+├── Typed API service
+└── Taro Storage (real local Before/After image references)
+        │
+        ▼
+FastAPI
+├── Pydantic request/response schemas
+├── REST routes
+├── Deterministic coaching service
+└── In-memory repository
 ```
 
-No backend, AI provider, agent runtime or database should exist yet.
+No AI provider, agent runtime, database or remote image storage exists in Phase 2. WeChat temporary
+image paths cross the API boundary only as opaque metadata.
 
 ## Planned architecture
 

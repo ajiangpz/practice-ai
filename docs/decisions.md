@@ -75,3 +75,17 @@ Record non-trivial implementation decisions here. Do not rewrite history; append
 **Decision:** In Phase 2, the frontend sends an `imageClientRef` only to satisfy the API contract. The backend stores it but does not read or inspect it. Real image transport is deferred to Phase 3.
 
 **Impact on acceptance criteria:** Phase 2 cleanly validates the frontend/backend boundary without pretending to perform image analysis or introducing disposable storage infrastructure.
+
+---
+
+## ADR-0007 — Recover current action after in-memory backend restart
+
+**Date:** 2026-09-02
+
+**Problem:** The Phase 2 repository is intentionally ephemeral, while manual acceptance requires a network failure to be recoverable after the backend is restarted. A restarted process no longer knows the persisted client-side practice ID.
+
+**Options considered:** Force the user to restart the whole exercise, retain a hidden durable backend store, or recreate the server-side practice when the current operation receives a practice `404`.
+
+**Decision:** Keep the backend strictly in memory. On an operation-specific `404`, the frontend creates a replacement `BG-01` practice, persists its new ID, and retries the current submission or completion once. Ordinary network errors remain visible with an explicit retry action.
+
+**Impact on acceptance criteria:** The accepted photo flow remains recoverable without introducing a database or changing the deterministic result contract.

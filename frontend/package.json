@@ -2,7 +2,7 @@
   "name": "practice-ai-frontend",
   "version": "0.1.0",
   "private": true,
-  "description": "练一下 · 手机摄影 Phase 1 微信小程序",
+  "description": "练一下 · 手机摄影 Phase 2 微信小程序",
   "scripts": {
     "dev:weapp": "taro build --type weapp --watch",
     "build:weapp": "taro build --type weapp",

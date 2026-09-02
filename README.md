@@ -57,6 +57,15 @@ npm install
 npm run dev:weapp
 ```
 
+API 地址通过 `TARO_APP_API_BASE_URL` 配置。微信开发者工具本机联调示例：
+
+```powershell
+$env:TARO_APP_API_BASE_URL='http://127.0.0.1:8000'
+npm run dev:weapp
+```
+
+真机联调时需改成手机可访问的开发地址，并重新编译小程序。
+
 Build output: `frontend/dist`.
 
 Typecheck/build:
@@ -67,21 +76,19 @@ npm run typecheck
 npm run build:weapp
 ```
 
-## Backend development — Phase 2 target
+## Backend development
 
-Codex will create a Python 3.11+ FastAPI backend under `backend/`.
+后端要求 Python 3.11+。推荐通过 `uv` 创建隔离环境：
 
-Expected setup after implementation:
-
-```bash
+```powershell
 cd backend
-python -m venv .venv
-# activate the virtual environment
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
+uv venv .venv --python 3.13
+uv pip install --python .venv/Scripts/python.exe -r requirements.txt
+& '.venv/Scripts/python.exe' -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The exact Python launcher may be `python3` depending on environment.
+macOS/Linux 使用对应的 `.venv/bin/python`。启动后访问
+`http://127.0.0.1:8000/health` 检查健康状态。
 
 Phase 2 backend is intentionally ephemeral and uses an in-memory repository only.
 

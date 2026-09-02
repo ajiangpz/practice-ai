@@ -36,9 +36,9 @@ export function saveImage(attempt: Attempt, imagePath: string): void {
   Taro.setStorageSync(key, imagePath)
 }
 
-export function startPractice(): void {
+export function startPractice(practice: Practice): void {
   saveAttempt(1)
-  savePractice({ ...initialPractice, attemptCount: 1, status: 'in_progress' })
+  savePractice(practice)
   Taro.removeStorageSync(STORAGE_KEYS.beforeImage)
   Taro.removeStorageSync(STORAGE_KEYS.afterImage)
 }
