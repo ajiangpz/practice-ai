@@ -17,7 +17,7 @@ AGENTS.md
    ↓
 harness/manifest.yaml
    ↓
-active phase spec
+active phase spec + rubric
    ↓
 implementation
    ↓
@@ -34,35 +34,65 @@ Codex must work on only one phase at a time. A later phase is locked until the c
 
 The current phase and allowed scope are declared in `harness/manifest.yaml`.
 
-## Phase 1 status
+## Accepted regression baseline
 
-Phase 1 — Mock Killer Loop has passed manual acceptance. Its behavior is now a regression contract: Phase 2 must preserve the same user-visible flow while moving mock evaluation behind HTTP.
+Phase 1 — Mock Killer Loop and Phase 2 — Backend Contract have both passed manual acceptance.
 
-## Phase 2 quality gates
+The accepted product flow remains:
 
-Phase 2 requires:
+```text
+Practice
+→ Capture
+→ focused Coach feedback
+→ optional re-capture
+→ local Before/After when relevant
+→ Complete
+```
 
-- FastAPI backend exists and starts;
-- explicit Pydantic API schemas exist;
-- in-memory repository abstraction exists;
-- required REST endpoints are implemented;
-- backend tests cover health, create/get practice, attempt-1 retry, attempt-2 compare and complete;
-- frontend evaluation result is fetched from the backend rather than selected locally by attempt;
-- frontend still typechecks and builds as a WeChat Mini Program;
-- no real AI, model SDK, database, LangGraph or queue infrastructure exists;
-- README documents backend setup and the Phase 2 development flow.
+Phase 3 may change where feedback comes from, but must not turn the product into chat, generic photo scoring or a broad photography course.
 
-Automated checks are run by `scripts/verify-phase2.sh`. Actual WeChat UI/network behavior remains a manual acceptance step.
+## Phase 3 quality gates
 
-## API evolution rule
+Phase 3 requires:
 
-Phase 2 deliberately treats the frontend image path/reference as opaque client metadata. The backend must not pretend it can read a WeChat temporary file path. Real image upload/storage and model-accessible image transport are deferred to Phase 3.
+- real image bytes are transported from the mini-program to FastAPI;
+- a `VisionProvider` abstraction exists;
+- at least one real configurable multimodal provider adapter exists;
+- no live credentials are required for automated tests;
+- BG-01 has a written narrow rubric;
+- provider output is converted into explicit Pydantic-validated structure;
+- business decisions are `pass | retry | uncertain`;
+- RETRY contains exactly one issue and one action;
+- PASS contains no action;
+- UNCERTAIN avoids invented corrections;
+- raw image bytes are not permanently stored;
+- provider/network failures are visible and recoverable;
+- frontend still typechecks/builds for WeChat;
+- no LangGraph, database, object storage, queue, RAG or extra skill is introduced.
 
-This avoids building fake image infrastructure only to replace it immediately when Vision evaluation is introduced.
+Automated checks run through `scripts/verify-phase3.sh`. Real model behavior remains a manual acceptance gate because repository CI must not consume paid API credentials.
+
+## Image transport rule
+
+Phase 2 deliberately treated local image paths as opaque. Phase 3 ends that mock boundary: the frontend must upload actual image bytes.
+
+The backend may hold those bytes only long enough to perform evaluation. Permanent image storage remains deferred.
+
+## Model reliability rule
+
+The model does not own business truth merely because it returns JSON. All output must pass schema validation and product invariants.
+
+If live model output is malformed, allow at most one controlled repair attempt. On continued failure, surface a recoverable provider error. Never silently substitute the old deterministic mock result.
+
+## Phase boundary to Phase 4
+
+Phase 3 evaluates each submitted photo independently against BG-01.
+
+It does **not** yet prove that the second photo improved because of the previous coaching action. Semantic Before/After comparison and action-effectiveness replanning are Phase 4 work.
 
 ## Change discipline
 
-When implementation requires deviating from a spec, do not hide the deviation in code. Add a dated entry to `docs/decisions.md` with:
+When implementation requires deviating from a spec, add a dated entry to `docs/decisions.md` with:
 
 - problem;
 - options considered;
@@ -71,4 +101,4 @@ When implementation requires deviating from a spec, do not hide the deviation in
 
 ## Competition originality
 
-Reference projects may be studied for engineering patterns, but their source, branding, UI, prompts, data or business flow must not be copied. Track material external references in `docs/references.md`.
+Reference projects may inform engineering patterns only. Do not copy their source, branding, UI, prompts, datasets or business flow. Track material external references in `docs/references.md`.
