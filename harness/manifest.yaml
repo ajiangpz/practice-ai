@@ -1,8 +1,8 @@
 project:
   name: practice-ai
   product_name: "练一下 · 手机摄影"
-  current_phase: 2
-  current_phase_name: backend-contract
+  current_phase: 3
+  current_phase_name: real-vision-evaluation
 
 phase_lock:
   enabled: true
@@ -13,7 +13,7 @@ stack:
   ui: "React + TypeScript + Sass"
   backend: "Python 3.11+ + FastAPI + Pydantic"
   backend_storage: "in-memory repository only"
-  ai: "locked until phase 3"
+  ai: "real multimodal vision via provider abstraction"
   agent: "locked until phase 6"
 
 active_scope:
@@ -23,90 +23,141 @@ active_scope:
     - pages/practice/index
     - pages/capture/index
     - pages/coach/index
-  backend_endpoints:
-    - "GET /health"
-    - "POST /api/v1/practices"
-    - "GET /api/v1/practices/{practice_id}"
-    - "POST /api/v1/practices/{practice_id}/submissions"
-    - "GET /api/v1/submissions/{submission_id}/result"
-    - "POST /api/v1/practices/{practice_id}/complete"
   flow:
     - practice
-    - capture_attempt_1
-    - backend_mock_retry
-    - capture_attempt_2
-    - backend_mock_compare
+    - capture_real_image
+    - multipart_upload
+    - real_vision_evaluation
+    - typed_pass_retry_uncertain
+    - optional_recapture
     - complete
 
-phase_1_regression_contract:
-  - practice_page_behavior_unchanged
-  - camera_and_album_still_supported
+regression_contract:
+  - practice_capture_coach_flow_preserved
+  - camera_and_album_supported
   - one_primary_issue_only
   - one_immediate_action_only
-  - real_before_after_images_still_rendered
+  - real_local_before_after_images_preserved_after_retry
+  - recoverable_network_errors
   - no_chat_ui
+  - no_overall_photo_score
 
-forbidden_in_phase_2:
-  - real_ai
-  - vision_model_sdk
-  - external_model_api
+allowed_in_phase_3:
+  - fastapi
+  - pydantic
+  - python_multipart
+  - httpx
+  - real_vision_provider
+  - configurable_openai_compatible_adapter
+  - fake_provider_for_tests
+  - multipart_image_upload
+  - bg01_rubric
+  - pass_retry_uncertain_states
+  - evaluation_tooling_without_private_images
+
+forbidden_in_phase_3:
+  - langgraph
+  - langchain
   - database
   - orm
-  - langgraph
-  - rag
-  - multi_agent
-  - websocket
+  - cloud_object_storage
   - redis
   - bullmq
   - queue
+  - websocket
+  - rag
   - vector_database
+  - web_search
+  - authentication
   - home_page
   - growth_page
   - extra_photography_skills
   - ai_chat_ui
-  - cloud_object_storage
+  - semantic_before_after_comparison
+  - action_effectiveness_replan
+  - automatic_practice_generation
 
-backend_requirements:
-  framework: fastapi
+image_transport:
+  request: multipart_form_data
+  field: image
+  allowed_mime:
+    - image/jpeg
+    - image/png
+    - image/webp
+  max_bytes: 10485760
+  permanent_storage: forbidden
+  raw_bytes_must_be_discarded_after_evaluation: true
+
+vision_provider:
+  abstraction: required
+  live_adapter: required
+  recommended_adapter: openai_compatible_http
+  config:
+    - VISION_PROVIDER
+    - VISION_API_BASE_URL
+    - VISION_API_KEY
+    - VISION_MODEL
+    - VISION_TIMEOUT_SECONDS
+  tests_use_fake_provider: true
+  app_starts_without_live_credentials: true
+  no_silent_mock_fallback: true
+  max_schema_repair_retries: 1
+
+rubric:
+  id: bg01-background-control
+  criteria:
+    - subject_clear
+    - background_distraction
+    - subject_background_separation
+  decisions:
+    - pass
+    - retry
+    - uncertain
+  confidence_range: [0, 1]
+  default_uncertain_threshold: 0.65
+
+structured_output:
   validation: pydantic
-  repository: in_memory
-  image_reference_policy: opaque_client_reference
-  required_models:
-    - PracticeCreateRequest
-    - PracticeResponse
-    - SubmissionCreateRequest
-    - SubmissionResponse
-    - CoachResultResponse
-    - PracticeCompleteResponse
-  deterministic_mock:
-    attempt_1: retry
-    attempt_2: compare
+  retry_requires_one_issue: true
+  retry_requires_one_action: true
+  pass_forbids_action: true
+  uncertain_forbids_action: true
+  raw_provider_output_to_frontend: forbidden
 
 frontend_requirements:
-  api_service_layer: required
-  api_base_url_configurable: true
-  local_attempt_result_branching: forbidden
-  free_form_result_parsing: forbidden
-  loading_state: required
-  network_error_state: required
+  real_image_upload: required
+  upload_api: taro_upload_file_or_equivalent
+  local_image_paths_for_rendering: preserved
+  states:
+    - loading
+    - retry
+    - pass
+    - uncertain
+    - recoverable_error
+  direct_pass_may_complete_without_second_photo: true
+  attempt_2_pass_may_show_before_after: true
+  causal_improvement_claim: forbidden_until_phase_4
 
 quality_gates:
   automated:
     - backend_imports
-    - backend_tests_pass
-    - required_endpoints_tested
+    - backend_tests_pass_without_live_key
+    - image_mime_and_size_validation_tested
+    - fake_provider_pass_retry_uncertain_tested
+    - structured_output_invariants_tested
+    - raw_image_bytes_not_persisted
     - frontend_typecheck_passes
     - weapp_build_passes
-    - dist_exists
-    - forbidden_phase_2_concepts_absent
+    - phase_2_mock_removed_from_active_code
+    - forbidden_phase_3_infrastructure_absent
   manual:
-    - backend_running
-    - mini_program_flow_completes_end_to_end
-    - attempt_1_result_comes_from_api
-    - attempt_2_result_comes_from_api
-    - before_after_images_are_real_user_images
-    - network_failure_has_recoverable_ui
+    - real_provider_configured
+    - obvious_background_distraction_returns_focused_feedback
+    - clean_background_can_pass
+    - ambiguous_photo_can_be_uncertain
+    - provider_failure_is_recoverable
+    - no_silent_mock_fallback
 
 completion_policy:
-  command: "bash scripts/verify-phase2.sh"
+  command: "bash scripts/verify-phase3.sh"
   auto_advance: false

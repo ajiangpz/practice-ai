@@ -18,38 +18,40 @@ AI 实践型手机摄影教练。
 
 This repository uses a harness-first workflow for Codex-assisted development.
 
-Start here:
+Read first:
 
-1. `AGENTS.md` — coding-agent rules
-2. `HARNESS.md` — development harness
-3. `harness/manifest.yaml` — active scope and quality gates
-4. `specs/phase-02-backend-contract.md` — current implementation spec
-5. `docs/api-phase-02.md` — current API contract
-6. `docs/prompts/codex-phase-02.md` — prompt to give Codex
+1. `AGENTS.md`
+2. `HARNESS.md`
+3. `harness/manifest.yaml`
+4. `specs/phase-03-real-vision-evaluation.md`
+5. `docs/api-phase-03.md`
+6. `docs/rubrics/bg01-background-control.md`
+7. `docs/prompts/codex-phase-03.md`
 
 ## Current phase
 
-**Phase 2 — Backend Contract**
+**Phase 3 — Real Vision Evaluation**
 
-Phase 1 — Mock Killer Loop has passed manual acceptance.
+Phase 1 and Phase 2 have passed manual acceptance.
 
-Phase 2 keeps the accepted UI flow but moves deterministic mock coaching behind FastAPI:
+Phase 3 replaces the deterministic backend mock with a real multimodal evaluator for the single practice `BG-01 / background_control`:
 
 ```text
 Practice
-→ Capture #1
-→ FastAPI mock Retry
-→ Capture #2
-→ FastAPI mock Compare
-→ Before / After
-→ Complete
+→ Capture real photo
+→ multipart upload
+→ FastAPI
+→ VisionProvider
+→ BG-01 rubric
+→ pass / retry / uncertain
+→ Complete or re-capture
 ```
 
-Phase 2 intentionally has **no real AI, no database and no LangGraph**.
+Phase 3 still has **no LangGraph, no database, no permanent image storage, no RAG and no extra photography skills**.
 
 ## Frontend development
 
-Environment: Node.js 18+, npm, WeChat Developer Tools for manual mini-program verification.
+Environment: Node.js 18+, npm, WeChat Developer Tools.
 
 ```bash
 cd frontend
@@ -57,16 +59,14 @@ npm install
 npm run dev:weapp
 ```
 
-API 地址通过 `TARO_APP_API_BASE_URL` 配置。微信开发者工具本机联调示例：
+API base URL:
 
 ```powershell
 $env:TARO_APP_API_BASE_URL='http://127.0.0.1:8000'
 npm run dev:weapp
 ```
 
-真机联调时需改成手机可访问的开发地址，并重新编译小程序。
-
-Build output: `frontend/dist`.
+For real-device testing use an address reachable by the phone and rebuild the mini-program.
 
 Typecheck/build:
 
@@ -78,7 +78,7 @@ npm run build:weapp
 
 ## Backend development
 
-后端要求 Python 3.11+。推荐通过 `uv` 创建隔离环境：
+Python 3.11+.
 
 ```powershell
 cd backend
@@ -87,30 +87,46 @@ uv pip install --python .venv/Scripts/python.exe -r requirements.txt
 & '.venv/Scripts/python.exe' -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-macOS/Linux 使用对应的 `.venv/bin/python`。启动后访问
-`http://127.0.0.1:8000/health` 检查健康状态。
+macOS/Linux use `.venv/bin/python`.
 
-Phase 2 backend is intentionally ephemeral and uses an in-memory repository only.
+## Vision provider configuration
 
-## Phase 2 verification
+Phase 3 requires at least one real provider adapter but keeps provider configuration outside source code.
 
-After Codex implements Phase 2, run from repository root:
+Recommended environment contract:
 
-```bash
-bash scripts/verify-phase2.sh
+```text
+VISION_PROVIDER=openai_compatible
+VISION_API_BASE_URL=https://example-provider/v1
+VISION_API_KEY=...
+VISION_MODEL=...
+VISION_TIMEOUT_SECONDS=30
 ```
 
-This gate checks backend imports/tests, Phase 2 scope constraints, frontend typecheck and WeChat build. Manual acceptance is still required with the backend actually running.
+The exact live endpoint/model depends on the configured provider. Never commit credentials.
+
+Automated tests must run without these live credentials by using a fake provider.
+
+## Phase 3 verification
+
+From repository root:
+
+```bash
+bash scripts/verify-phase3.sh
+```
+
+This gate checks backend tests without a live key, Phase 3 scope constraints, frontend typecheck and WeChat build.
+
+A separate manual acceptance is required with a configured live vision provider and real BG-01 photos.
 
 ## Codex handoff
 
-Give Codex this instruction:
-
 ```text
 Read AGENTS.md and HARNESS.md first, then harness/manifest.yaml,
-specs/phase-02-backend-contract.md, docs/api-phase-02.md and
-docs/prompts/codex-phase-02.md. Implement only Phase 2, run
-bash scripts/verify-phase2.sh, fix all failures, then stop.
+specs/phase-03-real-vision-evaluation.md, docs/api-phase-03.md,
+docs/rubrics/bg01-background-control.md and docs/prompts/codex-phase-03.md.
+Implement only Phase 3, run bash scripts/verify-phase3.sh, fix all failures,
+report live-provider setup/manual verification steps, then stop.
 ```
 
-Do not automatically continue to Phase 3.
+Do not automatically continue to Phase 4.

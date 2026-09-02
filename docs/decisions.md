@@ -89,3 +89,29 @@ Record non-trivial implementation decisions here. Do not rewrite history; append
 **Decision:** Keep the backend strictly in memory. On an operation-specific `404`, the frontend creates a replacement `BG-01` practice, persists its new ID, and retries the current submission or completion once. Ordinary network errors remain visible with an explicit retry action.
 
 **Impact on acceptance criteria:** The accepted photo flow remains recoverable without introducing a database or changing the deterministic result contract.
+
+---
+
+## ADR-0008 — Phase 2 manually accepted; Phase 3 introduces real vision only
+
+**Date:** 2026-09-02
+
+**Problem:** The frontend/backend boundary is now proven, but the product has not yet demonstrated that a multimodal model can reliably evaluate a real BG-01 photo.
+
+**Decision:** Advance to Phase 3 and replace deterministic coaching with a real vision provider for BG-01 only. Keep LangGraph, databases, extra skills and broader Agent behavior locked.
+
+**Consequence:** Phase 3 success is judged by narrow real-image rubric evaluation rather than infrastructure breadth.
+
+---
+
+## ADR-0009 — Phase 3 uses transient multipart image transport and independent evaluation
+
+**Date:** 2026-09-02
+
+**Problem:** Real vision requires actual image bytes, but adding COS/object storage now would introduce infrastructure unrelated to proving the evaluator. In addition, claiming Before/After improvement requires comparing both images, which is a separate capability from independently evaluating one image.
+
+**Options considered:** Add object storage immediately; upload images directly for transient evaluation; or keep client references. For retries, either claim improvement from the second result alone or defer semantic comparison.
+
+**Decision:** Use multipart upload from Taro to FastAPI, keep image bytes only during evaluation, and discard them afterward. Evaluate each submission independently against BG-01. If a second photo passes, UI may show the two local photos but must not claim causal improvement until Phase 4 performs explicit comparison.
+
+**Impact on acceptance criteria:** Phase 3 proves real visual evaluation with minimal infrastructure and avoids overstating model capability. Semantic Before/After comparison and replanning remain Phase 4 work.
