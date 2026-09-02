@@ -16,77 +16,83 @@ Read in this order before changing code:
 
 1. `HARNESS.md`
 2. `harness/manifest.yaml`
-3. `specs/phase-02-backend-contract.md`
-4. `docs/api-phase-02.md`
-5. `docs/product.md`
-6. `docs/architecture.md`
-7. `docs/decisions.md`
+3. `specs/phase-03-real-vision-evaluation.md`
+4. `docs/api-phase-03.md`
+5. `docs/rubrics/bg01-background-control.md`
+6. `docs/product.md`
+7. `docs/architecture.md`
+8. `docs/decisions.md`
 
 If documents conflict, `harness/manifest.yaml` and the active phase spec win.
 
 ## Current phase
 
-Current phase: **Phase 2 — Backend Contract**.
+Current phase: **Phase 3 — Real Vision Evaluation**.
 
-Phase 1 has passed manual acceptance. Phase 2 exists only to replace the frontend-local mock decision with a small FastAPI service while preserving the same user-visible flow.
+Phase 1 and Phase 2 have passed manual acceptance. Phase 3 replaces deterministic mock coaching with real multimodal evaluation for the same single practice.
 
 Only implement:
 
 ```text
-Taro Phase 1 UI
-→ HTTP API
+Taro photo
+→ real multipart upload
 → FastAPI
-→ deterministic mock evaluation
-→ same Retry / Compare UI states
+→ VisionProvider
+→ BG-01 rubric
+→ validated pass / retry / uncertain
+→ existing focused Coach UI
 ```
 
 ## Hard constraints
 
-- Keep the existing Taro 4 + React + TypeScript + Sass frontend.
-- Backend: Python 3.11+ + FastAPI + Pydantic.
-- No real AI in Phase 2.
-- No Vision model SDK/API in Phase 2.
-- No database in Phase 2; use an in-memory repository only.
-- No LangGraph in Phase 2.
-- No RAG, Multi-Agent, WebSocket, Redis, BullMQ, queue or vector database.
-- Only one skill: `BG-01 / background_control`.
-- Preserve the Phase 1 UI and coaching rule: one primary issue + one immediate action.
-- Frontend business state must come from typed API responses, never from free-form text parsing.
-- Phase 2 does not need to make the backend understand local `wxfile://` / temp image paths. The image reference is opaque mock metadata until Phase 3 introduces real image transport.
-- Do not add Home, Growth, login, sharing or extra photography skills.
-- Do not copy source code from reference projects. References may inform architecture only.
+- Keep Taro 4 + React + TypeScript + Sass.
+- Keep Python 3.11+ + FastAPI + Pydantic.
+- Only `BG-01 / background_control`.
+- Use real image bytes, not opaque `imageClientRef` pretending to be model-readable.
+- Create a provider abstraction under `backend/app/vision/`.
+- Implement at least one real configurable multimodal provider adapter.
+- Prefer a configurable OpenAI-compatible HTTP adapter unless repository/environment evidence justifies another adapter.
+- Provider settings/secrets come only from environment configuration.
+- Automated tests use a fake provider and must not require paid API calls.
+- All live model output must pass Pydantic validation before it becomes business/UI state.
+- RETRY: exactly one primary issue and one immediate action.
+- PASS: no coaching action.
+- UNCERTAIN: no invented action; request better evidence.
+- Do not expose raw provider output, hidden reasoning, API keys or image bytes.
+- No silent fallback to deterministic Phase 2 mock results.
+- No database/ORM or permanent image storage.
+- No LangGraph/LangChain in Phase 3.
+- No RAG, vector DB, web search, Multi-Agent, Redis, BullMQ, queues or WebSocket.
+- No Home/Growth/login/sharing/extra skills.
+- No semantic Before/After comparison or action-effectiveness replanning yet; those belong to Phase 4.
+- Do not copy source code, prompts, branding or UI from reference projects.
 
-## Required backend contract
+## Active rubric
 
-Implement at minimum:
+Read `docs/rubrics/bg01-background-control.md` before changing evaluation logic.
+
+The model is not asked whether a photo is attractive. It only checks:
 
 ```text
-GET  /health
-POST /api/v1/practices
-GET  /api/v1/practices/{practice_id}
-POST /api/v1/practices/{practice_id}/submissions
-GET  /api/v1/submissions/{submission_id}/result
-POST /api/v1/practices/{practice_id}/complete
+subject_clear
+background_distraction
+subject_background_separation
 ```
 
-The server must use explicit Pydantic request/response models and an in-memory repository abstraction.
-
-Attempt 1 deterministically returns `retry`; attempt 2 deterministically returns `compare`. The frontend must consume those API responses instead of deciding the result locally.
+PASS means only that the current practice target is satisfied.
 
 ## Development loop
 
-For every task:
-
 ```text
-Read spec
-→ inspect existing implementation
-→ make the smallest coherent change
-→ run backend tests
-→ run frontend typecheck/build
-→ run phase verification
+Read active spec/rubric
+→ inspect Phase 2 implementation
+→ make smallest coherent change
+→ backend tests with fake provider
+→ frontend typecheck/build
+→ bash scripts/verify-phase3.sh
 → fix failures
-→ update docs when behavior changes
-→ stop after Phase 2 gates pass
+→ live-provider manual acceptance
+→ stop
 ```
 
 Do not silently broaden scope.
@@ -95,18 +101,19 @@ Do not silently broaden scope.
 
 Stop and document in `docs/decisions.md` before continuing when:
 
-- the requested implementation contradicts the active phase spec;
-- a new dependency is required but not justified by Phase 2;
-- WeChat/Taro or FastAPI behavior is uncertain and affects correctness;
-- a change would introduce real AI, database or LangGraph;
-- acceptance criteria cannot be met without changing the Phase 1 product behavior.
+- the requested change conflicts with the active Phase 3 spec;
+- provider API behavior requires a material contract change;
+- a new dependency is required outside Phase 3 scope;
+- implementation would add DB/object storage/LangGraph/queue infrastructure;
+- reliable evaluation cannot be achieved without changing the BG-01 rubric;
+- acceptance criteria require claiming Before/After improvement without actually comparing both images.
 
-## Phase 2 validation
+## Phase 3 validation
 
-Before declaring Phase 2 complete:
+Before declaring Phase 3 complete:
 
 ```bash
-bash scripts/verify-phase2.sh
+bash scripts/verify-phase3.sh
 ```
 
-All automated checks must pass. Then manually verify the same mini-program flow with the backend running. Do not proceed to Phase 3 automatically.
+Automated checks must pass without live credentials. Then manually verify real photos with a configured live provider. Do not proceed to Phase 4 automatically.
