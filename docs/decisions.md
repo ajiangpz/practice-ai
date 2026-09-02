@@ -49,3 +49,29 @@ Record non-trivial implementation decisions here. Do not rewrite history; append
 **Decision:** Keep the reproducible npm lockfile and exclude standard package-manager lockfiles from the forbidden-concept text scan. Source files and `package.json` remain in scope for the guard.
 
 **Impact on acceptance criteria:** The no-WebSocket product constraint remains enforced without rejecting Taro's build tooling. No product behavior or Phase 1 scope changes.
+
+---
+
+## ADR-0005 — Phase 1 manually accepted; advance to backend contract
+
+**Date:** 2026-09-02
+
+**Problem:** Phase 1 automated structure/build checks are not sufficient to prove the actual mini-program photo-selection and Before/After interaction.
+
+**Decision:** Treat the user's successful manual run of the Phase 1 flow as the human acceptance gate and advance the harness to Phase 2.
+
+**Consequence:** Phase 1 UX becomes a regression contract. Phase 2 may move state/evaluation behind HTTP but must not redesign the accepted coaching flow.
+
+---
+
+## ADR-0006 — Phase 2 image references remain opaque
+
+**Date:** 2026-09-02
+
+**Problem:** WeChat temporary image paths such as client-local file references are not directly readable by a remote FastAPI server, while real image upload/storage belongs with Vision integration rather than the backend-contract phase.
+
+**Options considered:** Add local-file upload now, add cloud object storage now, or keep the image reference as opaque metadata until Phase 3.
+
+**Decision:** In Phase 2, the frontend sends an `imageClientRef` only to satisfy the API contract. The backend stores it but does not read or inspect it. Real image transport is deferred to Phase 3.
+
+**Impact on acceptance criteria:** Phase 2 cleanly validates the frontend/backend boundary without pretending to perform image analysis or introducing disposable storage infrastructure.

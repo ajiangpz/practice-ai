@@ -34,19 +34,31 @@ Codex must work on only one phase at a time. A later phase is locked until the c
 
 The current phase and allowed scope are declared in `harness/manifest.yaml`.
 
-## Quality gates
+## Phase 1 status
 
-Phase 1 requires:
+Phase 1 — Mock Killer Loop has passed manual acceptance. Its behavior is now a regression contract: Phase 2 must preserve the same user-visible flow while moving mock evaluation behind HTTP.
 
-- required page files exist;
-- TypeScript type check passes;
-- WeChat Mini Program build passes;
-- `Practice → Capture → Retry → Capture → Compare → Complete` is implemented;
-- core flow state survives page navigation/re-entry via Taro Storage;
-- no backend/AI/LangGraph/database dependency exists;
-- README documents install, dev and build steps.
+## Phase 2 quality gates
 
-Automated checks are run by `scripts/verify-phase1.sh`. Visual/user-flow checks remain manual until automated mini-program testing is introduced in a later phase.
+Phase 2 requires:
+
+- FastAPI backend exists and starts;
+- explicit Pydantic API schemas exist;
+- in-memory repository abstraction exists;
+- required REST endpoints are implemented;
+- backend tests cover health, create/get practice, attempt-1 retry, attempt-2 compare and complete;
+- frontend evaluation result is fetched from the backend rather than selected locally by attempt;
+- frontend still typechecks and builds as a WeChat Mini Program;
+- no real AI, model SDK, database, LangGraph or queue infrastructure exists;
+- README documents backend setup and the Phase 2 development flow.
+
+Automated checks are run by `scripts/verify-phase2.sh`. Actual WeChat UI/network behavior remains a manual acceptance step.
+
+## API evolution rule
+
+Phase 2 deliberately treats the frontend image path/reference as opaque client metadata. The backend must not pretend it can read a WeChat temporary file path. Real image upload/storage and model-accessible image transport are deferred to Phase 3.
+
+This avoids building fake image infrastructure only to replace it immediately when Vision evaluation is introduced.
 
 ## Change discipline
 
