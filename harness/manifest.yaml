@@ -1,8 +1,8 @@
 project:
   name: practice-ai
   product_name: "练一下 · 手机摄影"
-  current_phase: 1
-  current_phase_name: mock-killer-loop
+  current_phase: 2
+  current_phase_name: backend-contract
 
 phase_lock:
   enabled: true
@@ -11,68 +11,102 @@ phase_lock:
 stack:
   mini_program: "Taro 4"
   ui: "React + TypeScript + Sass"
-  backend: "locked until phase 2"
+  backend: "Python 3.11+ + FastAPI + Pydantic"
+  backend_storage: "in-memory repository only"
   ai: "locked until phase 3"
   agent: "locked until phase 6"
 
 active_scope:
   skill_id: BG-01
   skill_key: background_control
-  routes:
+  preserve_routes:
     - pages/practice/index
     - pages/capture/index
     - pages/coach/index
+  backend_endpoints:
+    - "GET /health"
+    - "POST /api/v1/practices"
+    - "GET /api/v1/practices/{practice_id}"
+    - "POST /api/v1/practices/{practice_id}/submissions"
+    - "GET /api/v1/submissions/{submission_id}/result"
+    - "POST /api/v1/practices/{practice_id}/complete"
   flow:
     - practice
     - capture_attempt_1
-    - mock_retry
+    - backend_mock_retry
     - capture_attempt_2
-    - before_after_compare
+    - backend_mock_compare
     - complete
 
-forbidden_in_phase_1:
-  - backend
+phase_1_regression_contract:
+  - practice_page_behavior_unchanged
+  - camera_and_album_still_supported
+  - one_primary_issue_only
+  - one_immediate_action_only
+  - real_before_after_images_still_rendered
+  - no_chat_ui
+
+forbidden_in_phase_2:
   - real_ai
+  - vision_model_sdk
+  - external_model_api
   - database
+  - orm
   - langgraph
   - rag
   - multi_agent
   - websocket
   - redis
   - bullmq
+  - queue
+  - vector_database
   - home_page
   - growth_page
   - extra_photography_skills
   - ai_chat_ui
+  - cloud_object_storage
 
-required_types:
-  - Practice
-  - Submission
-  - CoachState
-  - CoachResult
+backend_requirements:
+  framework: fastapi
+  validation: pydantic
+  repository: in_memory
+  image_reference_policy: opaque_client_reference
+  required_models:
+    - PracticeCreateRequest
+    - PracticeResponse
+    - SubmissionCreateRequest
+    - SubmissionResponse
+    - CoachResultResponse
+    - PracticeCompleteResponse
+  deterministic_mock:
+    attempt_1: retry
+    attempt_2: compare
 
-persistence:
-  provider: taro_storage
-  required_keys:
-    - practice_state
-    - before_image_path
-    - after_image_path
-    - attempt
+frontend_requirements:
+  api_service_layer: required
+  api_base_url_configurable: true
+  local_attempt_result_branching: forbidden
+  free_form_result_parsing: forbidden
+  loading_state: required
+  network_error_state: required
 
 quality_gates:
   automated:
-    - required_files_exist
-    - typecheck_passes
+    - backend_imports
+    - backend_tests_pass
+    - required_endpoints_tested
+    - frontend_typecheck_passes
     - weapp_build_passes
     - dist_exists
+    - forbidden_phase_2_concepts_absent
   manual:
-    - flow_completes_end_to_end
-    - first_attempt_shows_one_retry_issue
-    - retry_action_is_specific
-    - second_attempt_uses_real_before_after_images
-    - no_chat_ui
-    - navigation_does_not_immediately_lose_core_state
+    - backend_running
+    - mini_program_flow_completes_end_to_end
+    - attempt_1_result_comes_from_api
+    - attempt_2_result_comes_from_api
+    - before_after_images_are_real_user_images
+    - network_failure_has_recoverable_ui
 
 completion_policy:
-  command: "bash scripts/verify-phase1.sh"
+  command: "bash scripts/verify-phase2.sh"
   auto_advance: false
