@@ -1,0 +1,77 @@
+.practice-page {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.practice-card {
+  display: flex;
+  flex-direction: column;
+  padding: 48px 40px;
+  border: 1px solid rgba(32, 36, 31, 0.08);
+  border-radius: 32px;
+  background: #fff;
+  box-shadow: 0 18px 48px rgba(35, 44, 37, 0.07);
+}
+
+.focus-label,
+.section-label {
+  color: #667068;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.practice-title {
+  margin-top: 14px;
+  font-size: 52px;
+  font-weight: 750;
+  line-height: 1.25;
+}
+
+.objective {
+  margin-top: 12px;
+  color: #246b49;
+  font-size: 30px;
+  line-height: 1.5;
+}
+
+.divider {
+  height: 1px;
+  margin: 38px 0;
+  background: #e8eae6;
+}
+
+.instruction {
+  margin-top: 16px;
+  color: #363d37;
+  font-size: 29px;
+  line-height: 1.75;
+}
+
+.subject-label {
+  margin-top: 38px;
+}
+
+.subjects {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.subject {
+  padding: 14px 24px;
+  border-radius: 28px;
+  background: #eef4ef;
+  color: #246b49;
+  font-size: 26px;
+}
+
+.completed-note {
+  color: #246b49;
+  font-size: 26px;
+  text-align: center;
+}
+
+.practice-page .primary-button {
+  margin-top: auto;
+}

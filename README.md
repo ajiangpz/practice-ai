@@ -41,9 +41,33 @@ Practice
 
 Phase 1 intentionally has no backend, real AI, database or LangGraph.
 
+## 本地开发
+
+环境要求：Node.js 18+、npm，以及用于预览真机交互的微信开发者工具。
+
+```bash
+cd frontend
+npm install
+npm run dev:weapp
+```
+
+开发构建持续输出到 `frontend/dist`。在微信开发者工具中导入仓库内的
+`frontend` 目录即可预览；当前 `project.config.json` 使用游客 AppID，真机能力请按本地
+微信开发者工具配置处理。
+
+## 类型检查与生产构建
+
+```bash
+cd frontend
+npm run typecheck
+npm run build:weapp
+```
+
+生产构建同样输出到 `frontend/dist`。
+
 ## Verification contract
 
-Once the frontend has been generated and Phase 1 implemented:
+从仓库根目录执行完整 Phase 1 自动验证：
 
 ```bash
 bash scripts/verify-phase1.sh

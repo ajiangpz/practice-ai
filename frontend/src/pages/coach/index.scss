@@ -1,0 +1,171 @@
+.coach-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.feedback-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 30px;
+  padding: 28px 30px;
+  border-radius: 24px;
+  font-size: 30px;
+}
+
+.positive-card {
+  background: #e5f1e9;
+  color: #246b49;
+}
+
+.check {
+  font-size: 34px;
+  font-weight: 750;
+}
+
+.feedback-section {
+  display: flex;
+  flex-direction: column;
+  margin-top: 52px;
+}
+
+.section-kicker {
+  color: #6a736c;
+  font-size: 25px;
+  font-weight: 650;
+}
+
+.feedback-main {
+  margin-top: 14px;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.action-section {
+  padding: 34px;
+  border-left: 8px solid #246b49;
+  border-radius: 0 24px 24px 0;
+  background: #fff;
+}
+
+.retry-page .primary-button,
+.compare-page > .primary-button {
+  margin-top: auto;
+}
+
+.compare-title {
+  margin-top: 12px;
+  font-size: 46px;
+  font-weight: 750;
+}
+
+.comparison {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.comparison-item {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comparison-photo {
+  width: 100%;
+  height: 430px;
+  border-radius: 24px;
+  background: #dfe4df;
+}
+
+.photo-label {
+  color: #6a736c;
+  font-size: 24px;
+  text-align: center;
+}
+
+.comparison-arrow {
+  color: #246b49;
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.result-card {
+  display: flex;
+  flex-direction: column;
+  margin-top: 36px;
+  padding: 32px;
+  border-radius: 28px;
+  background: #fff;
+}
+
+.result-label {
+  color: #687169;
+  font-size: 25px;
+  font-weight: 650;
+}
+
+.mastery-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 16px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.old-level {
+  color: #8a6c47;
+}
+
+.level-arrow {
+  color: #9ca39d;
+}
+
+.new-level {
+  color: #246b49;
+}
+
+.summary {
+  margin-top: 24px;
+  color: #3e4640;
+  font-size: 28px;
+  line-height: 1.6;
+}
+
+.completion-state {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 34px;
+  color: #246b49;
+}
+
+.completion-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #246b49;
+  color: #fff;
+  font-size: 40px;
+}
+
+.completion-title {
+  margin-top: 14px;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.secondary-button {
+  margin-top: 18px;
+  background: transparent;
+  color: #246b49;
+  font-size: 27px;
+}

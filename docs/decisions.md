@@ -35,3 +35,17 @@ Record non-trivial implementation decisions here. Do not rewrite history; append
 **Why:** The product teaches by focused deliberate practice rather than broad critique.
 
 **Consequence:** UI and future AI schemas must preserve this constraint.
+
+---
+
+## ADR-0004 — Phase 1 scope guard ignores package-manager lockfiles
+
+**Date:** 2026-09-01
+
+**Problem:** Taro's build/dev toolchain includes transitive development packages whose lockfile metadata contains `websocket`, even though the application has no WebSocket dependency or runtime feature. The original recursive text guard treated that metadata as a Phase 1 scope violation.
+
+**Options considered:** Remove the lockfile, allow the false positive, or keep the lockfile and limit the text guard to implementation/direct dependency files.
+
+**Decision:** Keep the reproducible npm lockfile and exclude standard package-manager lockfiles from the forbidden-concept text scan. Source files and `package.json` remain in scope for the guard.
+
+**Impact on acceptance criteria:** The no-WebSocket product constraint remains enforced without rejecting Taro's build tooling. No product behavior or Phase 1 scope changes.

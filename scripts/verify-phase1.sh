@@ -57,7 +57,9 @@ fi
 [[ -d "$FRONTEND/dist" ]] || fail "frontend/dist not generated"
 
 info "checking Phase 1 scope guard"
-if grep -RIl --exclude-dir=node_modules --exclude-dir=dist -E 'langgraph|bullmq|redis|websocket|chroma|vector[ _-]?db' "$FRONTEND" >/tmp/practice_ai_scope_hits 2>/dev/null; then
+if grep -RIl --exclude-dir=node_modules --exclude-dir=dist \
+  --exclude=package-lock.json --exclude=pnpm-lock.yaml --exclude=yarn.lock \
+  -E 'langgraph|bullmq|redis|websocket|chroma|vector[ _-]?db' "$FRONTEND" >/tmp/practice_ai_scope_hits 2>/dev/null; then
   cat /tmp/practice_ai_scope_hits
   fail "Found dependencies/concepts forbidden in Phase 1"
 fi
