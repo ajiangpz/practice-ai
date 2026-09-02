@@ -16,44 +16,62 @@ Read in this order before changing code:
 
 1. `HARNESS.md`
 2. `harness/manifest.yaml`
-3. `specs/phase-01-mock-killer-loop.md`
-4. `docs/product.md`
-5. `docs/architecture.md`
-6. `docs/decisions.md`
+3. `specs/phase-02-backend-contract.md`
+4. `docs/api-phase-02.md`
+5. `docs/product.md`
+6. `docs/architecture.md`
+7. `docs/decisions.md`
 
 If documents conflict, `harness/manifest.yaml` and the active phase spec win.
 
 ## Current phase
 
-Current phase: **Phase 1 — Mock Killer Loop**.
+Current phase: **Phase 2 — Backend Contract**.
+
+Phase 1 has passed manual acceptance. Phase 2 exists only to replace the frontend-local mock decision with a small FastAPI service while preserving the same user-visible flow.
 
 Only implement:
 
 ```text
-Practice
-→ Capture #1
-→ Mock Retry
-→ Capture #2
-→ Before / After Compare
-→ Complete
+Taro Phase 1 UI
+→ HTTP API
+→ FastAPI
+→ deterministic mock evaluation
+→ same Retry / Compare UI states
 ```
 
 ## Hard constraints
 
-- Taro 4 + React + TypeScript + Sass.
-- No backend in Phase 1.
-- No real AI in Phase 1.
-- No database in Phase 1.
-- No LangGraph in Phase 1.
-- No RAG, Multi-Agent, WebSocket, Redis, BullMQ.
+- Keep the existing Taro 4 + React + TypeScript + Sass frontend.
+- Backend: Python 3.11+ + FastAPI + Pydantic.
+- No real AI in Phase 2.
+- No Vision model SDK/API in Phase 2.
+- No database in Phase 2; use an in-memory repository only.
+- No LangGraph in Phase 2.
+- No RAG, Multi-Agent, WebSocket, Redis, BullMQ, queue or vector database.
 - Only one skill: `BG-01 / background_control`.
-- Use `Taro.chooseMedia()` for camera/album input.
-- Persist essential Phase 1 state with Taro Storage.
-- UI must be state-driven by TypeScript types, never inferred from free-form text.
-- No AI chat page or chatbot-style UI.
-- Each coaching step shows at most one primary issue and one immediate action.
-- Before/After must use the user's two real selected/captured images.
+- Preserve the Phase 1 UI and coaching rule: one primary issue + one immediate action.
+- Frontend business state must come from typed API responses, never from free-form text parsing.
+- Phase 2 does not need to make the backend understand local `wxfile://` / temp image paths. The image reference is opaque mock metadata until Phase 3 introduces real image transport.
+- Do not add Home, Growth, login, sharing or extra photography skills.
 - Do not copy source code from reference projects. References may inform architecture only.
+
+## Required backend contract
+
+Implement at minimum:
+
+```text
+GET  /health
+POST /api/v1/practices
+GET  /api/v1/practices/{practice_id}
+POST /api/v1/practices/{practice_id}/submissions
+GET  /api/v1/submissions/{submission_id}/result
+POST /api/v1/practices/{practice_id}/complete
+```
+
+The server must use explicit Pydantic request/response models and an in-memory repository abstraction.
+
+Attempt 1 deterministically returns `retry`; attempt 2 deterministically returns `compare`. The frontend must consume those API responses instead of deciding the result locally.
 
 ## Development loop
 
@@ -63,10 +81,12 @@ For every task:
 Read spec
 → inspect existing implementation
 → make the smallest coherent change
-→ run validation
+→ run backend tests
+→ run frontend typecheck/build
+→ run phase verification
 → fix failures
 → update docs when behavior changes
-→ commit only after gates pass
+→ stop after Phase 2 gates pass
 ```
 
 Do not silently broaden scope.
@@ -76,17 +96,17 @@ Do not silently broaden scope.
 Stop and document in `docs/decisions.md` before continuing when:
 
 - the requested implementation contradicts the active phase spec;
-- a new dependency is required but not justified by the current phase;
-- WeChat/Taro API behavior is uncertain and affects correctness;
-- a change would introduce backend/AI/data infrastructure before its phase;
-- acceptance criteria cannot be met without changing product behavior.
+- a new dependency is required but not justified by Phase 2;
+- WeChat/Taro or FastAPI behavior is uncertain and affects correctness;
+- a change would introduce real AI, database or LangGraph;
+- acceptance criteria cannot be met without changing the Phase 1 product behavior.
 
-## Phase 1 validation
+## Phase 2 validation
 
-Before declaring Phase 1 complete:
+Before declaring Phase 2 complete:
 
 ```bash
-bash scripts/verify-phase1.sh
+bash scripts/verify-phase2.sh
 ```
 
-All checks must pass. Do not proceed to Phase 2 automatically.
+All automated checks must pass. Then manually verify the same mini-program flow with the backend running. Do not proceed to Phase 3 automatically.
